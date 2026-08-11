@@ -14,7 +14,7 @@
 
 ---
 
-## Step 1. VS Code에 IDE for Zephyr Extension 설치
+## Step 1. VS Code에 IDE for Zephyr Extension 설치(경로에 한글이 없는 경우에 가능)
 
 1. VS Code Extensions(`Ctrl+Shift+X`)에서 `IDE for Zephy` 검색
 <img width="500" height="100" alt="image" src="https://github.com/user-attachments/assets/822d1164-277b-44ba-9607-d19ecd86975f" />
