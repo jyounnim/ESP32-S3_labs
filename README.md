@@ -1,37 +1,41 @@
 # ESP32-S3
 
-# 00. 개발환경 셋업 — VS Code + PlatformIO (ESP32-S3)
-
-Non-OS(bare-metal, RTOS 없이 `setup()`/`loop()` 구조) 기준 ESP32-S3 실습 전체 시리즈의 시작 파일입니다. 이 문서로 개발환경을 구축한 뒤, 목차 순서대로 진행하시면 됩니다.
-
-## 사전 준비물
-
-- PC (Windows / macOS / Linux)
-- ESP32-S3 개발보드 (본 시리즈는 **ESP32-S3-DevKitC-1, N16R8** 기준으로 작성 — 16MB Quad Flash + 8MB Octal PSRAM)
-- 데이터 전송을 지원하는 USB 케이블 (충전 전용 케이블 아님)
+**Language:** **English** | [한국어](./README_kr.md)
 
 ---
 
-## Step 1. VS Code 설치
+# 00. Development Environment Setup — VS Code + PlatformIO (ESP32-S3)
 
-[code.visualstudio.com](https://code.visualstudio.com)에서 OS에 맞는 버전 설치. 이미 있다면 생략.
+This is the starting document for the entire ESP32-S3 lab series, based on a non-OS (bare-metal, no RTOS — `setup()`/`loop()` structure) approach. Once you've set up your development environment using this document, proceed through the labs in order.
 
-## Step 2. PlatformIO IDE 확장 설치
+## Prerequisites
 
-1. VS Code Extensions(`Ctrl+Shift+X`) → `PlatformIO IDE` 검색 → 설치
-2. 설치 후 VS Code 재시작 (최초 로딩에 수 분 소요)
-3. 좌측 Activity Bar에 PlatformIO 개미 아이콘이 보이면 설치 완료
+- A PC (Windows / macOS / Linux)
+- An ESP32-S3 development board (this series is written for the **ESP32-S3-DevKitC-1, N16R8** — 16MB Quad Flash + 8MB Octal PSRAM)
+- A USB cable that supports data transfer (not a charge-only cable)
 
-## Step 3. 새 프로젝트 생성
+---
+
+## Step 1. Install VS Code
+
+Install the version for your OS from [code.visualstudio.com](https://code.visualstudio.com). Skip this step if you already have it installed.
+
+## Step 2. Install the PlatformIO IDE Extension
+
+1. Open VS Code Extensions (`Ctrl+Shift+X`) → search for `PlatformIO IDE` → install
+2. Restart VS Code after installation (the first load may take a few minutes)
+3. Installation is complete once the PlatformIO ant icon appears in the left Activity Bar
+
+## Step 3. Create a New Project
 
 1. PlatformIO Home → **New Project**
-2. Board: `Espressif ESP32-S3-DevKitC-1` 검색 후 선택
+2. Board: search for and select `Espressif ESP32-S3-DevKitC-1`
 3. Framework: **Arduino**
-4. 생성 완료 시 `platformio.ini`, `src/main.cpp`가 자동 생성됨
+4. Once created, `platformio.ini` and `src/main.cpp` are generated automatically
 
-## Step 4. N16R8 Flash/PSRAM 설정
+## Step 4. Configure N16R8 Flash/PSRAM Settings
 
-기본 보드 정의는 N8(8MB Flash, PSRAM 없음) 기준입니다. N16R8(16MB Quad Flash + 8MB Octal PSRAM)을 쓰신다면 `platformio.ini`에 아래 설정을 추가하세요.
+The default board definition targets N8 (8MB Flash, no PSRAM). If you're using an N16R8 (16MB Quad Flash + 8MB Octal PSRAM) board, add the following settings to your `platformio.ini`.
 
 ```ini
 [env:esp32-s3-devkitc-1]
@@ -40,7 +44,7 @@ board = esp32-s3-devkitc-1
 framework = arduino
 monitor_speed = 115200
 
-; ---- N16R8 (16MB Quad Flash + 8MB Octal PSRAM) 설정 ----
+; ---- N16R8 (16MB Quad Flash + 8MB Octal PSRAM) settings ----
 board_build.flash_mode = qio
 board_upload.flash_size = 16MB
 board_build.partitions = default_16MB.csv
@@ -49,7 +53,7 @@ build_flags =
     -DBOARD_HAS_PSRAM
 ```
 
-> Flash는 Quad(`qio`), PSRAM은 Octal(`opi`)이라 `memory_type = qio_opi`를 씁니다. 다른 모듈(N16R8V, N32R8V 등)을 쓰신다면 Flash/PSRAM 구성이 다를 수 있으니 실물 각인을 확인하세요.
+> Since Flash is Quad (`qio`) and PSRAM is Octal (`opi`), we use `memory_type = qio_opi`. If you're using a different module variant (N16R8V, N32R8V, etc.), the Flash/PSRAM configuration may differ, so check the markings on the physical chip.
 
 ## Step 5. Hello World
 
@@ -68,11 +72,11 @@ void loop() {
 }
 ```
 
-Build(하단 상태바 체크 아이콘) → Upload(화살표 아이콘) → Serial Monitor(플러그 아이콘)로 확인.
+Verify by Build (checkmark icon in the bottom status bar) → Upload (arrow icon) → Serial Monitor (plug icon).
 
-## Step 6. 코어 버전 확인 (중요)
+## Step 6. Check Your Core Version (Important)
 
-`ledcAttach` 같은 최신 PWM API를 쓸지, `ledcSetup`+`ledcAttachPin` 같은 구버전 API를 쓸지는 **설치된 Arduino-ESP32 코어 버전**에 따라 갈립니다. 아래 코드로 확인하세요.
+Whether you should use the newer PWM API (`ledcAttach`) or the older one (`ledcSetup` + `ledcAttachPin`) depends on **the installed Arduino-ESP32 core version**. Check it with the code below.
 
 ```cpp
 void setup() {
@@ -85,17 +89,16 @@ void setup() {
 void loop() {}
 ```
 
-- **core 2.x**: PWM은 `ledcSetup(channel, freq, res)` + `ledcAttachPin(pin, channel)` + `ledcWrite(channel, duty)`
-- **core 3.x 이상**: PWM은 `ledcAttach(pin, freq, res)` + `ledcWrite(pin, duty)`
+- **core 2.x**: PWM uses `ledcSetup(channel, freq, res)` + `ledcAttachPin(pin, channel)` + `ledcWrite(channel, duty)`
+- **core 3.x and above**: PWM uses `ledcAttach(pin, freq, res)` + `ledcWrite(pin, duty)`
 
-이 시리즈의 PWM 관련 예제는 **core 2.x(구 API) 기준으로 작성**되어 있습니다 — 만약 3.x를 쓰고 계시다면 신버전 API로 바꿔서 진행하세요 (예제마다 두 방식을 함께 표기).
+The PWM-related examples in this series are **written for core 2.x (the legacy API)** — if you're on 3.x, switch to the newer API as you go (each example shows both approaches side by side).
 
-## 확인용 체크리스트
+## Setup Checklist
 
-- [ ] VS Code + PlatformIO IDE 설치
-- [ ] 프로젝트 생성 및 N16R8 Flash/PSRAM 설정 반영
-- [ ] Hello World 빌드/업로드/시리얼 출력 확인
-- [ ] 사용 중인 Arduino-ESP32 코어 버전 확인
+- [ ] VS Code + PlatformIO IDE installed
+- [ ] Project created and N16R8 Flash/PSRAM settings applied
+- [ ] Hello World build/upload/serial output verified
+- [ ] Arduino-ESP32 core version checked
 
 ---
-
